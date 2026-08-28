@@ -1,3 +1,4 @@
 flet==0.86.5
+flet-color-pickers==0.86.5
 qrcode[pil]==8.2
 Pillow==12.3.0
