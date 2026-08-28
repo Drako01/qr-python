@@ -20,6 +20,7 @@ _MUTED = "#64748B"
 _BORDER = "#E2E8F0"
 _SUCCESS = "#15803D"
 _ERROR = "#B91C1C"
+_LOGO_EXTENSIONS = ["png", "jpg", "jpeg", "webp"]
 
 # Flet 0.86+ requires Image.src at construction time. A transparent 1x1 PNG
 # keeps the preview control valid while remaining invisible until a QR exists.
@@ -51,11 +52,7 @@ def _build_footer() -> ft.Container:
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             wrap=True,
             controls=[
-                ft.Text(
-                    "QR Studio v2.0.0 · MIT",
-                    size=12,
-                    color=_MUTED,
-                ),
+                ft.Text("QR Studio v2.0.0 · MIT", size=12, color=_MUTED),
                 ft.Text(
                     spans=[
                         ft.TextSpan(
@@ -130,9 +127,17 @@ def main(page: ft.Page) -> None:
     )
     logo = ft.TextField(
         label="Logo opcional",
-        hint_text="Ruta a un archivo PNG, JPG o WEBP",
+        hint_text="Seleccioná una imagen o pegá una ruta manualmente",
         border_radius=12,
         prefix_icon=ft.Icons.IMAGE_OUTLINED,
+        expand=True,
+    )
+    selected_logo = ft.Text(
+        "Ningún archivo seleccionado",
+        size=11,
+        color=_MUTED,
+        max_lines=1,
+        overflow=ft.TextOverflow.ELLIPSIS,
     )
     fill_color = ft.TextField(label="Color del QR", value="#111827", border_radius=12)
     background_color = ft.TextField(label="Color de fondo", value="#FFFFFF", border_radius=12)
@@ -152,12 +157,7 @@ def main(page: ft.Page) -> None:
         spacing=8,
         controls=[
             ft.Icon(ft.Icons.QR_CODE_2, size=54, color="#CBD5E1"),
-            ft.Text(
-                "Tu QR aparecerá aquí",
-                size=17,
-                weight=ft.FontWeight.W_600,
-                color=_MUTED,
-            ),
+            ft.Text("Tu QR aparecerá aquí", size=17, weight=ft.FontWeight.W_600, color=_MUTED),
             ft.Text(
                 "Completá el contenido y usá Vista previa.",
                 size=12,
@@ -167,6 +167,73 @@ def main(page: ft.Page) -> None:
         ],
     )
     status = ft.Text("Listo para generar.", color=_MUTED, size=13)
+
+    async def pick_logo(_: ft.Event[ft.Button]) -> None:
+        files = await ft.FilePicker().pick_files(
+            dialog_title="Seleccionar logo",
+            file_type=ft.FilePickerFileType.CUSTOM,
+            allowed_extensions=_LOGO_EXTENSIONS,
+            allow_multiple=False,
+        )
+        if not files:
+            return
+
+        selected = files[0]
+        if not selected.path:
+            status.value = "El selector no devolvió una ruta local utilizable para este archivo."
+            status.color = _ERROR
+            page.update()
+            return
+
+        logo.value = selected.path
+        selected_logo.value = f"Seleccionado: {selected.name}"
+        selected_logo.color = _SUCCESS
+        status.value = "✓ Logo cargado. La corrección H se aplicará automáticamente."
+        status.color = _SUCCESS
+        page.update()
+
+    def clear_logo(_: ft.Event[ft.IconButton]) -> None:
+        logo.value = ""
+        selected_logo.value = "Ningún archivo seleccionado"
+        selected_logo.color = _MUTED
+        status.value = "Logo eliminado."
+        status.color = _MUTED
+        page.update()
+
+    logo_selector = ft.Column(
+        spacing=6,
+        controls=[
+            ft.Row(
+                spacing=8,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    logo,
+                    ft.Button(
+                        content="Cargar",
+                        icon=ft.Icons.UPLOAD_FILE,
+                        on_click=pick_logo,
+                        style=ft.ButtonStyle(
+                            color=_PRIMARY,
+                            bgcolor="#F5F3FF",
+                            padding=ft.Padding.symmetric(horizontal=14, vertical=14),
+                            shape=ft.RoundedRectangleBorder(radius=12),
+                        ),
+                    ),
+                    ft.IconButton(
+                        icon=ft.Icons.CLOSE,
+                        tooltip="Quitar logo",
+                        on_click=clear_logo,
+                    ),
+                ],
+            ),
+            selected_logo,
+            ft.Text(
+                "Formatos admitidos: PNG, JPG, JPEG y WEBP.",
+                size=10,
+                color="#94A3B8",
+            ),
+        ],
+    )
 
     def build_config() -> QRConfig:
         logo_value = (logo.value or "").strip()
@@ -234,12 +301,7 @@ def main(page: ft.Page) -> None:
                                         bgcolor=_PRIMARY,
                                         content=ft.Icon(ft.Icons.QR_CODE_2, color=ft.Colors.WHITE, size=25),
                                     ),
-                                    ft.Text(
-                                        "QR Studio",
-                                        size=31,
-                                        weight=ft.FontWeight.BOLD,
-                                        color=ft.Colors.WHITE,
-                                    ),
+                                    ft.Text("QR Studio", size=31, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
                                 ],
                             ),
                             ft.Text(
@@ -301,13 +363,10 @@ def main(page: ft.Page) -> None:
         content=ft.Column(
             spacing=18,
             controls=[
-                _section_title(
-                    "Configuración",
-                    "Definí el contenido, apariencia y exportación del código QR.",
-                ),
+                _section_title("Configuración", "Definí el contenido, apariencia y exportación del código QR."),
                 ft.Divider(height=1, color=_BORDER),
                 data,
-                _field_row(output, logo),
+                _field_row(output, logo_selector),
                 _field_row(fill_color, background_color),
                 correction,
                 ft.Container(
@@ -344,11 +403,7 @@ def main(page: ft.Page) -> None:
                         ],
                     ),
                 ),
-                ft.Row(
-                    controls=[preview_button, generate_button],
-                    wrap=True,
-                    spacing=10,
-                ),
+                ft.Row(controls=[preview_button, generate_button], wrap=True, spacing=10),
                 ft.Container(
                     padding=ft.Padding.symmetric(horizontal=14, vertical=10),
                     border_radius=10,
