@@ -1,0 +1,20 @@
+[project]
+name = "qr-studio"
+version = "2.0.0"
+description = "Generador profesional de códigos QR con interfaz Flet, CLI y soporte de logos"
+requires-python = ">=3.11"
+authors = [{ name = "Alejandro Daniel Di Stefano" }]
+license = "MIT"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [".venv", "venv", ".git"]
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM"]
+ignore = ["E501"]
