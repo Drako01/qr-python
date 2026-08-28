@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+qr-code.png
+output/
+dist/
+build/
