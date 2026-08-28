@@ -9,6 +9,26 @@ from qr_studio.generator import qr_to_png_bytes, save_qr
 from qr_studio.models import QRConfig
 
 
+# Flet 0.86+ requires Image.src at construction time. A transparent 1x1 PNG
+# keeps the preview control valid while remaining invisible until a QR exists.
+_TRANSPARENT_PNG_BASE64 = (
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF"
+    "gAI/6Mv5WQAAAABJRU5ErkJggg=="
+)
+
+
+def _create_preview_image() -> ft.Image:
+    """Create a valid, initially hidden preview control for current Flet APIs."""
+    return ft.Image(
+        src=_TRANSPARENT_PNG_BASE64,
+        width=420,
+        height=420,
+        fit=ft.BoxFit.CONTAIN,
+        border_radius=ft.BorderRadius.all(18),
+        visible=False,
+    )
+
+
 def main(page: ft.Page) -> None:
     page.title = "QR Studio · Professional QR Generator"
     page.theme_mode = ft.ThemeMode.LIGHT
@@ -39,12 +59,7 @@ def main(page: ft.Page) -> None:
     border = ft.Slider(min=4, max=12, divisions=8, value=4, label="{value}")
     logo_scale = ft.Slider(min=8, max=25, divisions=17, value=18, label="{value}%")
 
-    preview = ft.Image(
-        width=420,
-        height=420,
-        fit=ft.BoxFit.CONTAIN,
-        border_radius=ft.BorderRadius.all(18),
-    )
+    preview = _create_preview_image()
     preview_hint = ft.Text(
         "Tu QR aparecerá aquí",
         size=18,
@@ -70,6 +85,7 @@ def main(page: ft.Page) -> None:
     def update_preview(config: QRConfig) -> None:
         png = qr_to_png_bytes(config)
         preview.src = base64.b64encode(png).decode("ascii")
+        preview.visible = True
         preview_hint.visible = False
 
     def generate_click(_: ft.Event[ft.Button]) -> None:
