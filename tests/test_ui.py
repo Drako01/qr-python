@@ -1,6 +1,11 @@
 import flet as ft
 
-from qr_studio.app import _TRANSPARENT_PNG_BASE64, _build_footer, _create_preview_image
+from qr_studio.app import (
+    _LOGO_EXTENSIONS,
+    _TRANSPARENT_PNG_BASE64,
+    _build_footer,
+    _create_preview_image,
+)
 
 
 def test_preview_image_has_required_source_and_starts_hidden() -> None:
@@ -27,3 +32,7 @@ def test_footer_links_to_armotusitio() -> None:
     assert isinstance(link, ft.TextSpan)
     assert link.text == "ArmoTuSitio.com"
     assert link.url == "https://armotusitio.com.ar/"
+
+
+def test_logo_picker_supports_expected_image_formats() -> None:
+    assert _LOGO_EXTENSIONS == ["png", "jpg", "jpeg", "webp"]
