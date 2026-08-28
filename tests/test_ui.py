@@ -15,8 +15,8 @@ def test_preview_image_has_required_source_and_starts_hidden() -> None:
     assert isinstance(preview, ft.Image)
     assert preview.src == _TRANSPARENT_PNG_BASE64
     assert preview.visible is False
-    assert preview.width == 380
-    assert preview.height == 380
+    assert preview.width == 420
+    assert preview.height == 420
 
 
 def test_footer_links_to_armotusitio() -> None:
