@@ -71,7 +71,8 @@ def _embed_logo(
 
     padding = max(6, int(max_side * 0.12))
     plate_size = (logo.width + padding * 2, logo.height + padding * 2)
-    plate = Image.new("RGBA", plate_size, ImageColor.getrgb(background_color) + (255,))
+    plate_color = ImageColor.getcolor(background_color, "RGBA")
+    plate = Image.new("RGBA", plate_size, plate_color)
 
     radius = max(4, int(min(plate_size) * 0.12))
     mask = Image.new("L", plate_size, 0)
