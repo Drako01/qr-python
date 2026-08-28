@@ -363,11 +363,7 @@ def main(page: ft.Page) -> None:
                             spacing=1,
                             controls=[
                                 ft.Text("QR Studio", size=26, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
-                                ft.Text(
-                                    "Generador profesional de códigos QR",
-                                    size=11,
-                                    color="#CBD5E1",
-                                ),
+                                ft.Text("Generador profesional de códigos QR", size=11, color="#CBD5E1"),
                             ],
                         ),
                     ],
@@ -447,7 +443,7 @@ def main(page: ft.Page) -> None:
     )
 
     form_card = ft.Container(
-        expand=True,
+        expand=7,
         padding=22,
         border_radius=18,
         bgcolor=_SURFACE,
@@ -500,7 +496,7 @@ def main(page: ft.Page) -> None:
     )
 
     preview_card = ft.Container(
-        expand=True,
+        expand=5,
         padding=22,
         border_radius=18,
         bgcolor=_SURFACE,
@@ -528,25 +524,40 @@ def main(page: ft.Page) -> None:
         expand=True,
         spacing=16,
         vertical_alignment=ft.CrossAxisAlignment.STRETCH,
-        controls=[
-            ft.Container(expand=7, content=form_card),
-            ft.Container(expand=5, content=preview_card),
-        ],
-    )
-    mobile_workspace = ft.Column(
-        spacing=14,
-        scroll=ft.ScrollMode.AUTO,
         controls=[form_card, preview_card],
     )
+    mobile_workspace = ft.Column(spacing=14, scroll=ft.ScrollMode.AUTO, controls=[])
     workspace = ft.Container(expand=True, padding=ft.Padding.all(16), content=desktop_workspace)
     shell = ft.Column(expand=True, spacing=0, controls=[hero, workspace, _build_footer()])
+    current_mode = "desktop"
+
+    def set_layout(desktop: bool) -> None:
+        nonlocal current_mode
+        target_mode = "desktop" if desktop else "mobile"
+        if target_mode == current_mode:
+            return
+
+        if desktop:
+            mobile_workspace.controls.clear()
+            form_card.expand = 7
+            preview_card.expand = 5
+            desktop_workspace.controls[:] = [form_card, preview_card]
+            workspace.content = desktop_workspace
+        else:
+            desktop_workspace.controls.clear()
+            form_card.expand = False
+            preview_card.expand = False
+            mobile_workspace.controls[:] = [form_card, preview_card]
+            workspace.content = mobile_workspace
+
+        current_mode = target_mode
 
     def adapt_to_viewport(_: ft.PageResizeEvent | None = None) -> None:
         width = float(page.width or 1280)
         height = float(page.height or 800)
         desktop = width >= 1050
 
-        workspace.content = desktop_workspace if desktop else mobile_workspace
+        set_layout(desktop)
         workspace.padding = ft.Padding.all(12 if height < 760 else 16)
 
         if desktop:
