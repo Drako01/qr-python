@@ -1,6 +1,6 @@
 import flet as ft
 
-from qr_studio.app import _TRANSPARENT_PNG_BASE64, _create_preview_image
+from qr_studio.app import _TRANSPARENT_PNG_BASE64, _build_footer, _create_preview_image
 
 
 def test_preview_image_has_required_source_and_starts_hidden() -> None:
@@ -11,3 +11,19 @@ def test_preview_image_has_required_source_and_starts_hidden() -> None:
     assert preview.visible is False
     assert preview.width == 420
     assert preview.height == 420
+
+
+def test_footer_links_to_armotusitio() -> None:
+    footer = _build_footer()
+
+    assert isinstance(footer, ft.Container)
+    assert isinstance(footer.content, ft.Row)
+
+    attribution = footer.content.controls[1]
+    assert isinstance(attribution, ft.Text)
+    assert attribution.spans is not None
+
+    link = attribution.spans[1]
+    assert isinstance(link, ft.TextSpan)
+    assert link.text == "ArmoTuSitio.com"
+    assert link.url == "https://armotusitio.com.ar/"
