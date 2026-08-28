@@ -4,7 +4,7 @@ import re
 from urllib.parse import quote
 
 
-_WIFI_ESCAPE = re.compile(r"([\\;,:"])")
+_WIFI_ESCAPE = re.compile(r'([\\;,:"])')
 
 
 def text_payload(value: str) -> str:
