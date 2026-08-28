@@ -1,4 +1,5 @@
 import flet as ft
+from flet_color_pickers import ColorPicker
 
 from qr_studio.app import (
     _LOGO_EXTENSIONS,
@@ -14,8 +15,8 @@ def test_preview_image_has_required_source_and_starts_hidden() -> None:
     assert isinstance(preview, ft.Image)
     assert preview.src == _TRANSPARENT_PNG_BASE64
     assert preview.visible is False
-    assert preview.width == 420
-    assert preview.height == 420
+    assert preview.width == 380
+    assert preview.height == 380
 
 
 def test_footer_links_to_armotusitio() -> None:
@@ -36,3 +37,10 @@ def test_footer_links_to_armotusitio() -> None:
 
 def test_logo_picker_supports_expected_image_formats() -> None:
     assert _LOGO_EXTENSIONS == ["png", "jpg", "jpeg", "webp"]
+
+
+def test_visual_color_picker_dependency_is_available() -> None:
+    picker = ColorPicker(color="#111827", enable_alpha=False)
+
+    assert picker.color == "#111827"
+    assert picker.enable_alpha is False
