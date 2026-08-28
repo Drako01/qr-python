@@ -7,6 +7,7 @@ from qr_studio.app import (
     _build_footer,
     _create_preview_image,
 )
+from qr_studio.app_pro import _normalize_picker_color
 
 
 def test_preview_image_has_required_source_and_starts_hidden() -> None:
@@ -44,3 +45,15 @@ def test_visual_color_picker_dependency_is_available() -> None:
 
     assert picker.color == "#111827"
     assert picker.enable_alpha is False
+
+
+def test_color_picker_argb_is_normalized_to_rgb() -> None:
+    assert _normalize_picker_color("#FF2563EB") == "#2563EB"
+
+
+def test_color_picker_rgb_is_preserved() -> None:
+    assert _normalize_picker_color("#2563EB") == "#2563EB"
+
+
+def test_invalid_color_falls_back_safely() -> None:
+    assert _normalize_picker_color("not-a-color", "#111827") == "#111827"
